@@ -109,6 +109,8 @@ impl Interpreter for InterpreterState {
                 ].to_string();
             self.parse(Some(slice))
         }
+
+        self.loops_data.clear();
     }
 
 
