@@ -86,12 +86,8 @@ impl Interpreter for InterpreterState {
                 '>' => self.goto_next_cell(),
                 '<' => self.goto_previous_cell(),
                 '.' => self.print(),
-                '[' => {
-                    self.open_loop(index);
-                },
-                ']' => {
-                    self.close_loop(index);
-                },
+                '[' => self.open_loop(index),
+                ']' => self.close_loop(index),
                 ',' => self.input(),
                 _ => log!(Level::Debug, "Passed other char, treating as comment"),
             }
@@ -105,7 +101,7 @@ impl Interpreter for InterpreterState {
         }
         while self.cells[self.cell_index] > 0 {
             let slice = &self.file_content[
-                loop_data[0]..loop_data[1]
+                loop_data[0]..=loop_data[1]
                 ].to_string();
             self.parse(Some(slice))
         }
@@ -118,7 +114,7 @@ impl Interpreter for InterpreterState {
         if self.cells[self.cell_index] == 255 {
             self.cells[self.cell_index] = 0;
         } else {
-            self.cells[self.cell_index] = 255;
+            self.cells[self.cell_index] += 1;
         }
 
     }
@@ -172,7 +168,7 @@ impl Interpreter for InterpreterState {
     fn print(&self) {
         match str::from_utf8(&[self.cells[self.cell_index]]) {
             Ok(value) => print!("{value}"),
-            Err(_) => println!("Invalid utf8 char"),
+            Err(err) => println!("Invalid utf8 char {err}"),
         }
     }
 
@@ -237,6 +233,6 @@ mod tests {
         let mut i = InterpreterState::new();
         i.goto_previous_cell();
 
-        assert_eq!(i.cell_index, 29998);
+        assert_eq!(i.cell_index, 29999);
     }
 }
